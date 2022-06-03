@@ -44,10 +44,13 @@ function Ball:collision()
     self.yvel = 0
     self.xvel = self.speed
     lifes = lifes - 1
-    print(lifes)
   end
 end
 
+function Ball:colour(red, green, blue, alpha)
+  love.graphics.setColor(1, 1, 1, 1)
+end
+
 function Ball:draw()
-  love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)--self.radius)
+  love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
 end

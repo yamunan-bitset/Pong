@@ -17,10 +17,16 @@ function love.update(dt)
 end
 
 function love.draw()
-  Player:draw()
-  Enemy:draw()
-  Ball:draw()
-  if lifes == 0 then exit() end
+  if lifes == 0 then
+    love.graphics.setFont(love.graphics.newFont(90))
+    love.graphics.print({{1, 0, 0, 1}, "Game Over!!"}, love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+  else
+    Player:draw()
+    Enemy:draw()
+    Ball:draw()
+    love.graphics.setFont(love.graphics.newFont(30))
+    love.graphics.print("Lifes: "..lifes, 50, 50)
+  end
 end
 
 function CheckCollision(a, b)

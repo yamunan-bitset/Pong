@@ -8,6 +8,10 @@ function Ball:load()
   self.speed = 200
   self.xvel = -self.speed
   self.yvel = 0
+  self.Part = {}
+  for x = 1,20 do
+    self.Part[x] = {self.x, self.y}
+  end
 end
 
 function Ball:update(dt)
@@ -21,6 +25,8 @@ function Ball:update(dt)
     self.yvel = -self.yvel
   end
   self:collision()
+  table.remove(self.Part)
+  table.insert(self.Part, 1, {self.x, self.y})
 end
 
 function Ball:collision()
@@ -52,5 +58,11 @@ function Ball:colour(red, green, blue, alpha)
 end
 
 function Ball:draw()
-  love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+  for k,v in ipairs(self.Part) do
+    if k ~= 1 then
+      love.graphics.setColor(0.7, 0.7, 0.7, 1)
+    end
+    love.graphics.circle("fill", v[1], v[2], 15-k/2)
+    love.graphics.setColor(1, 1, 1, 1)
+  end
 end

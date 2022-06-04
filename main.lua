@@ -11,15 +11,18 @@ function love.load()
 end
 
 function love.update(dt)
-  Player:update(dt)
-  Enemy:update(dt)
-  Ball:update(dt)
+    Player:update(dt)
+    Enemy:update(dt)
+    Ball:update(dt)
 end
 
 function love.draw()
-  if lifes == 0 then
+  if lifes <= 0 then
+    local dx = love.math.random(-5, 5)
+    local dy = love.math.random(-5, 5)
     love.graphics.setFont(love.graphics.newFont(90))
-    love.graphics.print({{1, 0, 0, 1}, "Game Over!!"}, love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+    love.graphics.print({{1, 0, 0, 1}, "Game Over!!"}, love.graphics.getWidth() / 2 + dx, love.graphics.getHeight() / 2 + dy)
+    love.graphics.translate(dx, dy)
   else
     Player:draw()
     Enemy:draw()

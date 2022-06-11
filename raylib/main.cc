@@ -1,5 +1,7 @@
 #include <raylib.h>
 #include <string>
+#include <cstdlib>
+#include <ctime>
 
 #define W 1200
 #define H 720
@@ -18,6 +20,7 @@ bool CheckCollision(struct Entity a, struct Entity b)
 
 int main(int argc, char** argv)
 {
+  std::srand(std::time(0));
   Entity player; 
   player.x = 50;
   player.y = H / 2;
@@ -71,7 +74,7 @@ int main(int argc, char** argv)
 	  ball.xvel = -ball.xvel;
 	  unsigned middle_ball = ball.y + ball.h / 2;
 	  unsigned middle_player = player.y + player.h / 2;
-	  unsigned collision_pos = middle_ball - middle_player;
+	  int collision_pos = middle_ball - middle_player;
 	  ball.yvel = -collision_pos * 0.2;
 	}
 
@@ -80,21 +83,34 @@ int main(int argc, char** argv)
 	  ball.xvel = -ball.xvel;
 	  unsigned middle_ball = ball.y + ball.h / 2;
 	  unsigned middle_enemy = enemy.y + enemy.h / 2;
-	  unsigned collision_pos = middle_ball - middle_enemy;
+	  int collision_pos = middle_ball - middle_enemy;
 	  ball.yvel = -collision_pos * 0.2;
 	}
 
       enemy.y = ball.y;
     
-      BeginDrawing();
-      ClearBackground(BLACK);
-      DrawRectangle(player.x, player.y, player.w, player.h, RAYWHITE);
-      DrawRectangle(enemy.x, enemy.y, enemy.w, enemy.h, RAYWHITE);
-      DrawCircle(ball.x, ball.y, ball.w / 2, RAYWHITE);
-      DrawText(TextFormat((std::string("Lifes: ") + std::to_string(lifes)).c_str()),
-	       100, 100, 20, RAYWHITE);
-      DrawText("", 500, 10, 20, RAYWHITE); // Dummy Text
-      EndDrawing();
+      if (lifes > 0)
+	{
+	  BeginDrawing();
+	  ClearBackground(BLACK);
+	  DrawRectangle(player.x, player.y, player.w, player.h, RAYWHITE);
+	  DrawRectangle(enemy.x, enemy.y, enemy.w, enemy.h, RAYWHITE);
+	  DrawCircle(ball.x, ball.y, ball.w / 2, RAYWHITE);
+	  DrawText(TextFormat((std::string("Lifes: ") + std::to_string(lifes)).c_str()),
+		   100, 100, 20, RAYWHITE);
+	  DrawText("", 500, 10, 20, RAYWHITE); // Dummy Text
+	  EndDrawing();
+	}
+      else
+	{
+	  BeginDrawing();
+	  ClearBackground(BLACK);
+	  DrawText("Game Over!!", W / 2 - 75 + std::rand() % 20, H / 2 - 75 + std::rand() % 20,
+		   100, RED);
+	  DrawText("Press any key to exit", W / 2 + 200, H / 2 + 200, 20, RAYWHITE);
+	  if (GetKeyPressed() > 0) exit(0);
+	  EndDrawing();
+	}
     }
   CloseWindow();
   return 0;

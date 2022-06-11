@@ -60,7 +60,7 @@ end
 function Ball:draw()
   for k,v in ipairs(self.Part) do
     if k ~= 1 then
-      love.graphics.setColor(0.7, 0.7, 0.7, 1)
+      love.graphics.setColor(0.7, 0.7, 0.7, 0.5)
     end
     love.graphics.circle("fill", v[1], v[2], 15-k/2)
     love.graphics.setColor(1, 1, 1, 1)

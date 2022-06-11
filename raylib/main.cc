@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include <string>
 
 #define W 1200
 #define H 720
@@ -40,37 +41,61 @@ int main(int argc, char** argv)
   ball.h = 20;
   ball.xvel = 5;
   ball.yvel = 0;
-  
+
   InitWindow(W, H, "Pong");
   SetTargetFPS(60);
 
+  int lifes = 3;
+  
   while (!WindowShouldClose())
-  {
-    if (IsKeyDown(KEY_UP)) player.y -= player.yvel;
-    if (IsKeyDown(KEY_DOWN)) player.y += player.yvel;
+    {
+      if (IsKeyDown(KEY_UP)) player.y -= player.yvel;
+      if (IsKeyDown(KEY_DOWN)) player.y += player.yvel;
 
-    if (player.y < 0) player.y = 0;
-    if (player.y + player.h > H) player.y = H - player.h;
+      if (player.y < 0) player.y = 0;
+      if (player.y + player.h > H) player.y = H - player.h;
 
-    ball.x -= ball.xvel;
-    ball.y -= ball.yvel;
-    if (CheckCollision(ball, player))
-      {
-	ball.xvel = ball.xvel * -1;
-	unsigned middle_ball = ball.y + ball.h / 2;
-	unsigned middle_player = player.y + player.h / 2;
-	unsigned collision_pos = middle_ball - middle_player;
-	ball.yvel = collision_pos * 5;
-      }
+      ball.x -= ball.xvel;
+      ball.y -= ball.yvel;
+      if (ball.y < 0) { ball.y = 0; ball.yvel = -ball.yvel; }
+      if (ball.y + ball.h > H) { ball.y = H - ball.h; ball.yvel = -ball.yvel; }
+      if (ball.x < 0)
+	{
+	  lifes--;
+	  ball.x = W / 2;
+	  ball.y = H / 2;
+	}
     
-    BeginDrawing();
+      if (CheckCollision(ball, player))
+	{
+	  ball.xvel = -ball.xvel;
+	  unsigned middle_ball = ball.y + ball.h / 2;
+	  unsigned middle_player = player.y + player.h / 2;
+	  unsigned collision_pos = middle_ball - middle_player;
+	  ball.yvel = -collision_pos * 0.2;
+	}
+
+      if (CheckCollision(ball, enemy))
+	{
+	  ball.xvel = -ball.xvel;
+	  unsigned middle_ball = ball.y + ball.h / 2;
+	  unsigned middle_enemy = enemy.y + enemy.h / 2;
+	  unsigned collision_pos = middle_ball - middle_enemy;
+	  ball.yvel = -collision_pos * 0.2;
+	}
+
+      enemy.y = ball.y;
+    
+      BeginDrawing();
       ClearBackground(BLACK);
       DrawRectangle(player.x, player.y, player.w, player.h, RAYWHITE);
       DrawRectangle(enemy.x, enemy.y, enemy.w, enemy.h, RAYWHITE);
       DrawCircle(ball.x, ball.y, ball.w / 2, RAYWHITE);
-    EndDrawing();
-  }
+      DrawText(TextFormat((std::string("Lifes: ") + std::to_string(lifes)).c_str()),
+	       100, 100, 20, RAYWHITE);
+      DrawText("", 500, 10, 20, RAYWHITE); // Dummy Text
+      EndDrawing();
+    }
   CloseWindow();
-
   return 0;
 }

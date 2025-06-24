@@ -1,5 +1,6 @@
 import pygame
 import sys
+import calculate
 
 # Game settings
 WIDTH, HEIGHT = 800, 600
@@ -22,6 +23,8 @@ left_paddle = pygame.Rect(30, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE
 right_paddle = pygame.Rect(WIDTH-40, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
 ball = pygame.Rect(WIDTH//2 - BALL_SIZE//2, HEIGHT//2 - BALL_SIZE//2, BALL_SIZE, BALL_SIZE)
 ball_vel = [BALL_SPEED_X, BALL_SPEED_Y]
+ai_calculate = calculate.Calculate(right_paddle, ball, ball_vel, left_paddle)
+right_paddle_vel = 0
 
 # Scores
 left_score = 0
@@ -40,10 +43,32 @@ while True:
 
     # Paddle movement
     keys = pygame.key.get_pressed()
+    accel = 1.5
+    max_speed = 10
+    friction = 0.8
+
     if keys[pygame.K_UP] and right_paddle.top > 0:
-        right_paddle.y -= PADDLE_SPEED
-    if keys[pygame.K_DOWN] and right_paddle.bottom < HEIGHT:
-        right_paddle.y += PADDLE_SPEED
+        right_paddle_vel -= accel
+    elif keys[pygame.K_DOWN] and right_paddle.bottom < HEIGHT:
+        right_paddle_vel += accel
+    else:
+        right_paddle_vel *= friction
+
+    # Clamp velocity
+    if right_paddle_vel > max_speed:
+        right_paddle_vel = max_speed
+    if right_paddle_vel < -max_speed:
+        right_paddle_vel = -max_speed
+
+    right_paddle.y += int(right_paddle_vel)
+
+    # Prevent paddle from going out of bounds
+    if right_paddle.top < 0:
+        right_paddle.top = 0
+        right_paddle_vel = 0
+    if right_paddle.bottom > HEIGHT:
+        right_paddle.bottom = HEIGHT
+        right_paddle_vel = 0
 
     # Ball movement
     ball.x += ball_vel[0]

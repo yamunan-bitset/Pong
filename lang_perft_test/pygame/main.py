@@ -1,6 +1,5 @@
 import pygame
 import sys
-import calculate
 
 # Game settings
 WIDTH, HEIGHT = 800, 600
@@ -23,7 +22,6 @@ left_paddle = pygame.Rect(30, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE
 right_paddle = pygame.Rect(WIDTH-40, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
 ball = pygame.Rect(WIDTH//2 - BALL_SIZE//2, HEIGHT//2 - BALL_SIZE//2, BALL_SIZE, BALL_SIZE)
 ball_vel = [BALL_SPEED_X, BALL_SPEED_Y]
-ai_calculate = calculate.Calculate(right_paddle, ball, ball_vel, left_paddle)
 right_paddle_vel = 0
 
 # Scores

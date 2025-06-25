@@ -32,20 +32,43 @@ class Calculate:
         self.ball_vel = ball_vel
         self.comp_paddle_pos = computer_paddle_pos
 
+    def inputs(self):
+        return [
+            self.paddle.x, 
+            self.paddle.y, 
+            self.paddle_vel, 
+            self.ball.x, 
+            self.ball.y, 
+            self.ball_vel[0], 
+            self.ball_vel[1],
+            self.comp_paddle_pos.x, 
+            self.comp_paddle_pos.y
+        ]
+
+    def expected_output(self):
+        if self.ball_vel[1] > 0 and self.paddle.y <= self.ball.y: # Ball moving down
+            return self.paddle_accel
+        elif self.ball_vel[1] < 0 and self.paddle.y >= self.ball.y: # Ball moving up
+            return -self.paddle_accel
+        else:
+            return 0
+        '''
+        if self.ball.y > self.paddle.y + self.paddle.height / 2:
+            return self.paddle_accel
+        elif self.ball.y < self.paddle.y + self.paddle.height / 2:
+            return -self.paddle_accel
+        else:
+            return 0'''
+
     def random_moves(self):
         x = random.choice([-1, 0, 1])
         if x == 0: self.paddle_vel *= self.friction
         else: 
-            self.paddle_vel += (sigmoid(dot(weights, [
-                self.paddle.x, 
-                self.paddle.y, 
-                self.paddle_vel, 
-                self.ball.x, 
-                self.ball.y, 
-                self.ball_vel[0], 
-                self.ball_vel[1],
-                self.comp_paddle_pos.x, 
-                self.comp_paddle_pos.y])) - 0.5) * self.paddle_accel
+            prediction = (sigmoid(dot(weights, self.inputs())) - 0.5) * 2 * self.paddle_accel
+            #self.paddle_vel += prediction
+            self.paddle_vel += self.expected_output()
+
+            print("Prediction:", prediction, "Expected", self.expected_output())
 
         if self.paddle_vel > self.max_speed:
             self.paddle_vel = self.max_speed

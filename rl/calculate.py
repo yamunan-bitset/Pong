@@ -4,12 +4,15 @@ from consts import *
 def random_moves(right_paddle, PADDLE_SPEED):
     right_paddle.y += random.choice([-1, 0, 1]) * PADDLE_SPEED
 
-def sigmoid(x):
-    return 1 / (1 + math.e ** -x)
-
-weights = list()
-for i in range(9):
-    weights.append(random.uniform(-0.1, 0.1))
+def sigmoid(x, derivative=False):
+    if derivative:
+        return sigmoid(x, derivative=False) * (1 - sigmoid(x, derivative=False))
+    else:
+        try:
+            return 1 / (1 + math.e ** -x)
+        except OverflowError:
+            print("Inputs too large; x:", x, "Assuming: sigmoid(x)=", 1 if x > 0 else 0)
+            return 1 if x > 0 else 0
 
 def dot(weights, inputs):
     assert len(weights) == len(inputs), "Weights and inputs must have the same length"
@@ -26,6 +29,23 @@ class Calculate:
         self.paddle_accel = 1.5
         self.max_speed = 10
         self.friction = 0.8
+
+        self.bias = 0
+        '''weights = [
+            0.001,
+            0.001,
+            0.1,
+            0.001,
+            0.001,
+            0.1,
+            0.1,
+            0.001,
+            0.001
+        ]'''
+        self.weights = list()
+        for i in range(9):
+            self.weights.append(random.uniform(-0.01, 0.01))
+
 
     def update(self, ball_pos, ball_vel, computer_paddle_pos):
         self.ball = ball_pos
@@ -52,23 +72,32 @@ class Calculate:
             return -self.paddle_accel
         else:
             return 0
-        '''
-        if self.ball.y > self.paddle.y + self.paddle.height / 2:
-            return self.paddle_accel
-        elif self.ball.y < self.paddle.y + self.paddle.height / 2:
-            return -self.paddle_accel
-        else:
-            return 0'''
+
+    def cost(self, prediction):
+        return (self.expected_output() - prediction) ** 2
+
+    def grad_C(self, prediction):
+        nablaC = list()
+        for i in range(len(self.weights)):
+            nablaC.append(self.inputs()[i] * sigmoid(self.weights[i] * self.inputs()[i] + self.bias, derivative=True) * 2 * (prediction - self.expected_output()))
+        return nablaC
+
+    def gradient_descent(self, prediction):
+        eta = 2
+        for i in range(len(self.weights)):
+            self.weights[i] = self.weights[i] - eta * self.grad_C(prediction)[i]
 
     def random_moves(self):
         x = random.choice([-1, 0, 1])
         if x == 0: self.paddle_vel *= self.friction
         else: 
-            prediction = (sigmoid(dot(weights, self.inputs())) - 0.5) * 2 * self.paddle_accel
-            #self.paddle_vel += prediction
-            self.paddle_vel += self.expected_output()
+            prediction = (sigmoid(dot(self.weights, self.inputs()) + self.bias) - 0.5) * 2 * self.paddle_accel
+            self.paddle_vel += prediction
+            #self.paddle_vel += self.expected_output()
 
-            print("Prediction:", prediction, "Expected", self.expected_output())
+            print("Prediction:", prediction, "Expected", self.expected_output(), "Cost:", self.cost(prediction), end=" ")
+            self.gradient_descent(prediction)
+            print("Updated weights:", self.weights)
 
         if self.paddle_vel > self.max_speed:
             self.paddle_vel = self.max_speed
